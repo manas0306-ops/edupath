@@ -1,8 +1,20 @@
+import os
+import sys
 import logging
+
+# Automatically ensure project root is always in sys.path regardless of execution working directory
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "../.."))
+BACKEND_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
+for p in [PROJECT_ROOT, BACKEND_ROOT]:
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
 
 from backend.app.config import settings
 from backend.app.database import init_db
