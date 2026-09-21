@@ -1,0 +1,94 @@
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { BrainCircuit, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Zap, Award } from 'lucide-react';
+
+const SKILLS_CATALOG = [
+  { name: "PyTorch", category: "Deep Learning", difficulty: "Advanced", questionsCount: 4, icon: "🔥" },
+  { name: "SQL", category: "Database & Analysis", difficulty: "Intermediate", questionsCount: 5, icon: "💾", isStruggle: true },
+  { name: "Machine Learning", category: "Algorithms", difficulty: "Intermediate", questionsCount: 6, icon: "🤖" },
+  { name: "Deep Learning", category: "Neural Networks", difficulty: "Advanced", questionsCount: 4, icon: "🧠" },
+  { name: "Python", category: "Core Programming", difficulty: "Beginner", questionsCount: 8, icon: "🐍" },
+  { name: "Docker", category: "Containerization", difficulty: "Intermediate", questionsCount: 3, icon: "🐳" },
+];
+
+export const PracticePage = ({ onLaunchPractice }) => {
+  const { user } = useAuth();
+  const { t } = useTheme();
+
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-8 animate-fade-in">
+      
+      {/* Top Header */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+          Practice & Diagnostic Assessment Engine
+        </h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Active coding tasks, scenario MCQs, and debugging challenges designed to reinforce retention.
+        </p>
+      </div>
+
+      {/* Adaptive Notice Banner */}
+      <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 flex items-start space-x-3">
+        <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <h4 className="text-xs font-bold text-amber-900 dark:text-amber-200">
+            Targeted Adaptive Practice Active
+          </h4>
+          <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5">
+            EduPath continuously monitors your accuracy across question types. Solving practice tasks below directly updates your skill readiness and roadmap priorities.
+          </p>
+        </div>
+      </div>
+
+      {/* Skills Practice Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {SKILLS_CATALOG.map((skill, idx) => (
+          <div
+            key={idx}
+            className={`p-5 rounded-3xl border transition-all duration-200 flex flex-col justify-between ${
+              skill.isStruggle
+                ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-300/80 dark:border-amber-800/60 ring-1 ring-amber-400/20'
+                : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md'
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-2xl">{skill.icon}</span>
+                {skill.isStruggle && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300">
+                    Needs Practice
+                  </span>
+                )}
+              </div>
+
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                {skill.name}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {skill.category}
+              </p>
+
+              <div className="flex items-center space-x-2 mt-4 text-[10px] text-slate-400">
+                <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-semibold text-slate-600 dark:text-slate-300">
+                  {skill.difficulty}
+                </span>
+                <span>• {skill.questionsCount} Diagnostic Tasks</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onLaunchPractice(skill.name)}
+              className="mt-6 w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-sm flex items-center justify-center space-x-1.5 transition"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Start Practice Session</span>
+            </button>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  );
+};
