@@ -94,11 +94,11 @@ export const Navbar = ({ onOpenAuth }) => {
             <div className="flex items-center space-x-2">
               <div className="flex items-center space-x-2 pl-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow">
-                  {user.name.charAt(0)}
+                  {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-xs font-bold leading-tight text-slate-800 dark:text-slate-200">{user.name}</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{user.profile?.target_role || 'Learner'}</p>
+                  <p className="text-xs font-bold leading-tight text-slate-800 dark:text-slate-200">{user?.name || user?.email || 'Learner'}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{user?.profile?.target_role || 'Learner'}</p>
                 </div>
               </div>
               <button

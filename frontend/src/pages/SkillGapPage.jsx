@@ -308,7 +308,7 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
                   <div className="flex items-center space-x-2">
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{item.skill_name}</span>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-semibold">
-                      {item.gap_type.split(' ')[0]}
+                      {(item.gap_type || "Gap").split(' ')[0]}
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-400 mt-0.5">
