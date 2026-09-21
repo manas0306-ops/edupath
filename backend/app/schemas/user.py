@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -10,11 +10,6 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: "UserResponse"
 
 class ProfileBase(BaseModel):
     current_role: Optional[str] = "Student / Aspiring Engineer"
@@ -35,8 +30,7 @@ class ProfileResponse(ProfileBase):
     xp: int
     streak_days: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class UserResponse(BaseModel):
     id: str
@@ -46,7 +40,9 @@ class UserResponse(BaseModel):
     created_at: datetime
     profile: Optional[ProfileResponse] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
-TokenResponse.model_rebuild()
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
