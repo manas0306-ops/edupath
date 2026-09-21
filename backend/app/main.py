@@ -13,7 +13,8 @@ for p in [PROJECT_ROOT, BACKEND_ROOT]:
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
+from fastapi.staticfiles import StaticFiles
 
 
 from backend.app.config import settings
@@ -92,10 +93,48 @@ app.include_router(practice_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
 app.include_router(reports_router, prefix="/api")
 
+# Locate frontend dist if built
+DIST_DIRS = [
+    os.path.abspath(os.path.join(PROJECT_ROOT, "frontend", "dist")),
+    os.path.abspath(os.path.join(CURRENT_DIR, "../../frontend/dist")),
+    os.path.abspath("frontend/dist")
+]
+DIST_DIR = next((d for d in DIST_DIRS if os.path.exists(d) and os.path.exists(os.path.join(d, "index.html"))), None)
+
+if DIST_DIR and os.path.exists(os.path.join(DIST_DIR, "assets")):
+    app.mount("/assets", StaticFiles(directory=os.path.join(DIST_DIR, "assets")), name="static_assets")
+
+@app.get("/favicon.ico")
+async def favicon():
+    if DIST_DIR:
+        fav_path = os.path.join(DIST_DIR, "favicon.ico")
+        if os.path.exists(fav_path):
+            return FileResponse(fav_path)
+    return Response(content="", media_type="image/x-icon")
+
 @app.get("/")
-async def root():
+async def root(request: Request):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept and DIST_DIR:
+        index_file = os.path.join(DIST_DIR, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
     return {
         "message": "Welcome to EduPath AI API",
         "documentation": "/docs",
         "health": "/api/health"
     }
+
+if DIST_DIR:
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str, request: Request):
+        if full_path.startswith("api") or full_path in ["docs", "redoc", "openapi.json"]:
+            return JSONResponse(status_code=404, content={"detail": "Not Found"})
+        file_path = os.path.join(DIST_DIR, full_path)
+        if full_path and os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        index_file = os.path.join(DIST_DIR, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})
+
