@@ -171,3 +171,26 @@ async def test_career_comparison_and_project_generation():
         assert upd_data["status"] == "Completed"
         assert upd_data["resume_bullet"] == "Customized edited resume bullet."
 
+@pytest.mark.asyncio
+async def test_chapter_analytics_endpoints():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # 1. Fetch chapter analytics
+        res = await client.get("/api/reports/chapters")
+        assert res.status_code == 200
+        data = res.json()
+        assert "subjects" in data
+        assert len(data["subjects"]) >= 5
+        all_sub = next(s for s in data["subjects"] if s["id"] == "all")
+        assert all_sub["total_chapters"] > 20
+        assert all_sub["chapters_read"] > 10
+        assert all_sub["chapters_left"] > 5
+
+        # 2. Toggle chapter status
+        toggle_res = await client.post("/api/reports/chapters/ml/1/toggle")
+        assert toggle_res.status_code == 200
+        toggle_data = toggle_res.json()
+        assert toggle_data["success"] is True
+        assert toggle_data["chapter"]["status"] in ["completed", "left"]
+
+

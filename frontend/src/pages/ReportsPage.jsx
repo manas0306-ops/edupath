@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { ChapterAnalytics } from '../components/ChapterAnalytics';
 import {
   FileBarChart, CheckCircle2, TrendingUp, AlertTriangle, Sparkles,
   Calendar, Clock, Award, Printer, ArrowRight, Volume2, Square, Zap
@@ -165,6 +166,9 @@ export const ReportsPage = () => {
           <span>{t('exportPrintReport')}</span>
         </button>
       </div>
+
+      {/* Visual Analytics: Flowcharts, Bar Graphs, Line Graphs & Subject Chapter Tracking */}
+      <ChapterAnalytics />
 
       {/* Main Report Card */}
       <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-8">
