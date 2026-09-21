@@ -54,10 +54,10 @@ export const ReportsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            Weekly AI Learning Report
+            {t('reportsTitle')}
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Synthesized intelligence evaluating skill acquisition velocity, struggle metrics, and curriculum recommendations.
+            {t('reportsSubtitle')}
           </p>
         </div>
 
@@ -66,7 +66,7 @@ export const ReportsPage = () => {
           className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center space-x-1.5 transition shadow-sm w-fit"
         >
           <Printer className="w-3.5 h-3.5" />
-          <span>Export / Print Report</span>
+          <span>{t('exportPrintReport')}</span>
         </button>
       </div>
 
@@ -77,30 +77,30 @@ export const ReportsPage = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-6 gap-4">
           <div>
             <span className="text-[10px] uppercase font-bold tracking-widest text-brand-600 dark:text-brand-400">EduPath Synthesis</span>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">{report?.report_title}</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Learner: <span className="font-semibold text-slate-700 dark:text-slate-300">{user?.name}</span> • Track: <span className="font-semibold text-brand-600">{user?.profile?.target_role || 'AI/ML Engineer'}</span></p>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">{t(report?.report_title) || report?.report_title}</h2>
+            <p className="text-xs text-slate-500 mt-0.5">{t('learner')}: <span className="font-semibold text-slate-700 dark:text-slate-300">{user?.name}</span> • {t('targetCareerTrack')} <span className="font-semibold text-brand-600">{t(user?.profile?.target_role) || 'AI/ML Engineer'}</span></p>
           </div>
           <div className="text-left sm:text-right text-xs text-slate-400">
             <p className="flex items-center sm:justify-end space-x-1 font-semibold text-slate-700 dark:text-slate-300">
               <Calendar className="w-3.5 h-3.5 text-brand-500" />
-              <span>Current Evaluation Period</span>
+              <span>{t('weeklyAiProgressReport')}</span>
             </p>
-            <p className="text-[10px] mt-0.5">Automated AI Assessment</p>
+            <p className="text-[10px] mt-0.5">{t('adaptiveAiActive')}</p>
           </div>
         </div>
 
         {/* High-Level Numbers */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
-            <span className="text-[10px] uppercase font-bold text-slate-400">Completed Activities</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">{t('completedActivities')}</span>
             <p className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1">{report?.completed_activities_count || 8}</p>
           </div>
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
-            <span className="text-[10px] uppercase font-bold text-slate-400">Diagnostic Accuracy</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">{t('diagnosticAccuracy')}</span>
             <p className="text-2xl font-black text-emerald-500 mt-1">{report?.practice_accuracy_percentage || 82.5}%</p>
           </div>
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60">
-            <span className="text-[10px] uppercase font-bold text-slate-400">Hours Invested</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">{t('studyHoursLogged')}</span>
             <p className="text-2xl font-black text-brand-500 mt-1">{report?.learning_hours_logged || 11.5}h</p>
           </div>
         </div>
@@ -112,13 +112,13 @@ export const ReportsPage = () => {
           <div className="p-5 rounded-2xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/60 space-y-3">
             <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
               <CheckCircle2 className="w-4 h-4" />
-              <span>Skills Acquired</span>
+              <span>{t('skillsAcquired')}</span>
             </div>
             <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
               {report?.skills_acquired?.map((s, i) => (
                 <li key={i} className="flex items-start space-x-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
-                  <span>{s}</span>
+                  <span>{t(s)}</span>
                 </li>
               ))}
             </ul>
@@ -128,13 +128,13 @@ export const ReportsPage = () => {
           <div className="p-5 rounded-2xl bg-sky-50/40 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/60 space-y-3">
             <div className="flex items-center space-x-2 text-sky-700 dark:text-sky-400 font-bold text-xs">
               <TrendingUp className="w-4 h-4" />
-              <span>Skills Improving</span>
+              <span>{t('skillsMasteredThisWeek')}</span>
             </div>
             <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
               {report?.skills_improving?.map((s, i) => (
                 <li key={i} className="flex items-start space-x-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-sky-500 mt-1.5 flex-shrink-0"></span>
-                  <span>{s}</span>
+                  <span>{t(s)}</span>
                 </li>
               ))}
             </ul>
@@ -144,13 +144,13 @@ export const ReportsPage = () => {
           <div className="p-5 rounded-2xl bg-amber-50/40 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/60 space-y-3">
             <div className="flex items-center space-x-2 text-amber-700 dark:text-amber-400 font-bold text-xs">
               <AlertTriangle className="w-4 h-4" />
-              <span>Identified Challenges</span>
+              <span>{t('struggleFocusAreas')}</span>
             </div>
             <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
               {report?.weak_areas?.map((s, i) => (
                 <li key={i} className="flex items-start space-x-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
-                  <span>{s}</span>
+                  <span>{t(s)}</span>
                 </li>
               ))}
             </ul>
@@ -162,10 +162,10 @@ export const ReportsPage = () => {
         <div className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-3">
           <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-brand-500" />
-            <span>AI Mentor Executive Evaluation</span>
+            <span>{t('aiLearningInsights')}</span>
           </h4>
           <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-            "{report?.ai_summary}"
+            "{t(report?.ai_summary)}"
           </p>
         </div>
 
@@ -173,8 +173,8 @@ export const ReportsPage = () => {
         <div className="p-5 rounded-2xl bg-brand-50/60 dark:bg-brand-950/30 border border-brand-200 dark:border-brand-800/60 flex items-start space-x-3">
           <Award className="w-5 h-5 text-brand-500 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-xs font-bold text-brand-900 dark:text-brand-200">Recommended Next Week Milestone</h4>
-            <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5">{report?.recommended_next_week}</p>
+            <h4 className="text-xs font-bold text-brand-900 dark:text-brand-200">{t('recommendedNextStep')}</h4>
+            <p className="text-xs text-slate-700 dark:text-slate-300 mt-0.5">{t(report?.recommended_next_week)}</p>
           </div>
         </div>
 

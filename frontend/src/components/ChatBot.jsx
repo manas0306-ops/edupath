@@ -212,7 +212,7 @@ How can I help accelerate your learning journey today? Click a starter prompt be
         className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-500 text-white shadow-xl shadow-brand-500/30 hover:scale-105 transition-all flex items-center space-x-2 font-bold text-xs"
       >
         <Sparkles className="w-5 h-5" />
-        <span>Ask AI Mentor</span>
+        <span>{t('askAiMentorBtn')}</span>
       </button>
     );
   }
@@ -232,7 +232,7 @@ How can I help accelerate your learning journey today? Click a starter prompt be
               <span>EduPath AI Mentor</span>
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             </h3>
-            <p className="text-[10px] text-slate-500 dark:text-slate-400">Contextual Learning Assistant</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-400">{t('Contextual Learning Assistant')}</p>
           </div>
         </div>
 
@@ -286,7 +286,7 @@ How can I help accelerate your learning journey today? Click a starter prompt be
             <div className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-500 flex items-center justify-center">
               <Bot className="w-3.5 h-3.5 animate-spin" />
             </div>
-            <span className="italic animate-pulse">Formulating personalized guidance...</span>
+            <span className="italic animate-pulse">{t('Formulating personalized guidance...')}</span>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -300,7 +300,7 @@ How can I help accelerate your learning journey today? Click a starter prompt be
             onClick={() => handleSend(prompt)}
             className="flex-shrink-0 text-[10px] font-medium px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-brand-50 dark:hover:bg-brand-950/40 text-slate-600 dark:text-slate-300 hover:text-brand-600 transition"
           >
-            {prompt}
+            {t(prompt)}
           </button>
         ))}
       </div>

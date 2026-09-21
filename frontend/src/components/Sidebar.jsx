@@ -51,10 +51,10 @@ export const Sidebar = ({ activeTab, setActiveTab }) => {
       <div className="mt-8 p-3.5 rounded-2xl bg-gradient-to-br from-brand-900/20 to-sky-900/10 border border-brand-200/50 dark:border-brand-800/40 text-left">
         <div className="flex items-center space-x-2 text-brand-600 dark:text-brand-400 font-bold text-xs mb-1">
           <Award className="w-4 h-4" />
-          <span>Adaptive AI Active</span>
+          <span>{t('adaptiveAiActive')}</span>
         </div>
         <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-          Dynamic curriculum adapts daily based on your quiz accuracy and problem-solving speed.
+          {t('adaptiveAiDesc')}
         </p>
       </div>
     </aside>

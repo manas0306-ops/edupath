@@ -145,10 +145,10 @@ export const ProjectsPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            Portfolio & GitHub Generator
+            {t('projectsTitle')}
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Turn your acquired competencies into hiring-manager-ready GitHub projects with auto-generated READMEs and resume bullets.
+            {t('projectsSubtitle')}
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export const ProjectsPage = () => {
           className="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-500/20 flex items-center space-x-2 transition self-start sm:self-auto"
         >
           <Sparkles className="w-4 h-4" />
-          <span>Generate New AI Project</span>
+          <span>{t('generateNewProject')}</span>
         </button>
       </div>
 
@@ -178,7 +178,7 @@ export const ProjectsPage = () => {
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300">
-                      {proj.difficulty} • {proj.estimated_duration}
+                      {t(proj.difficulty)} • {proj.estimated_duration}
                     </span>
                     <button
                       onClick={() => handleUpdateStatus(proj.id, proj.status === 'Completed' ? 'In Progress' : 'Completed')}
@@ -188,17 +188,17 @@ export const ProjectsPage = () => {
                           : 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300'
                       }`}
                     >
-                      {proj.status} (Click to toggle)
+                      {t(proj.status)}
                     </button>
                   </div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-1.5">
-                    {proj.title}
+                    {t(proj.title) || proj.title}
                   </h3>
                 </div>
               </div>
 
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                {proj.problem_statement}
+                {t(proj.problem_statement) || proj.problem_statement}
               </p>
 
               {/* Tech Stack Chips */}
@@ -219,7 +219,7 @@ export const ProjectsPage = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-1">
                       <FileText className="w-3 h-3" />
-                      <span>Resume Bullet Suggestion</span>
+                      <span>{t('resumeBulletSuggestion')}</span>
                     </span>
                     <div className="flex items-center space-x-3">
                       {editingId === proj.id ? (
@@ -229,7 +229,7 @@ export const ProjectsPage = () => {
                           className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:underline flex items-center space-x-1"
                         >
                           <Check className="w-3 h-3" />
-                          <span>Save Bullet</span>
+                          <span>{t('save')}</span>
                         </button>
                       ) : (
                         <button
@@ -240,7 +240,7 @@ export const ProjectsPage = () => {
                           className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-semibold flex items-center space-x-1"
                         >
                           <Edit3 className="w-3 h-3" />
-                          <span>Edit</span>
+                          <span>{t('edit')}</span>
                         </button>
                       )}
                       <button
@@ -248,7 +248,7 @@ export const ProjectsPage = () => {
                         className="text-[11px] text-brand-600 dark:text-brand-400 font-semibold hover:underline flex items-center space-x-1"
                       >
                         {copiedId === `bullet-${proj.id}` ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                        <span>{copiedId === `bullet-${proj.id}` ? "Copied" : "Copy"}</span>
+                        <span>{copiedId === `bullet-${proj.id}` ? t('copied') : t('copy')}</span>
                       </button>
                     </div>
                   </div>
@@ -277,7 +277,7 @@ export const ProjectsPage = () => {
                   >
                     <span className="flex items-center space-x-2">
                       <FolderGit2 className="w-4 h-4 text-brand-500" />
-                      <span>Generated GitHub README.md Structure</span>
+                      <span>{t('generatedReadme')}</span>
                     </span>
                     {expandedReadme[proj.id] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
@@ -289,7 +289,7 @@ export const ProjectsPage = () => {
                         className="absolute top-3 right-3 text-[10px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white transition flex items-center space-x-1"
                       >
                         {copiedId === `readme-${proj.id}` ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                        <span>{copiedId === `readme-${proj.id}` ? "Copied" : "Copy"}</span>
+                        <span>{copiedId === `readme-${proj.id}` ? t('copied') : t('copy')}</span>
                       </button>
                       <pre className="whitespace-pre-wrap">{proj.github_readme}</pre>
                     </div>

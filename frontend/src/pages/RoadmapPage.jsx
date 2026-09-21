@@ -112,16 +112,16 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {roadmap?.title || "Personalized Acceleration Roadmap"}
+            {t(roadmap?.title) || t('roadmapTitle')}
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Targeting <span className="font-bold text-brand-600 dark:text-brand-400">{roadmap?.target_role}</span> • Dynamic curriculum tailored to your schedule
+            {t('roadmapSubtitle', { role: t(roadmap?.target_role) })}
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <div className="text-right">
-            <span className="text-[10px] uppercase font-bold text-slate-400">Roadmap Completion</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">{t('roadmapCompletion')}</span>
             <p className="text-base font-extrabold text-brand-600 dark:text-brand-400">{roadmap?.progress_percentage || 0}%</p>
           </div>
           <button
@@ -142,10 +142,10 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
           </span>
           <div>
             <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
-              Study Pace & Velocity Calibration
+              {t('velocityCalibration')}
             </h4>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Select your weekly commitment to recalculate milestone completion timelines.
+              {t('velocityDesc')}
             </p>
           </div>
         </div>
@@ -201,20 +201,20 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
                         ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
                         : 'bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300'
                     }`}>
-                      {item.is_adaptive_addition ? "Adaptive Revision Module" : `Week ${item.week_number}`}
+                      {item.is_adaptive_addition ? t('adaptiveRevisionModule') : t('weekN', { n: item.week_number })}
                     </span>
 
                     <span className="text-[11px] text-slate-400 flex items-center space-x-1">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>{item.estimated_hours} Hours</span>
+                      <span>{item.estimated_hours}h</span>
                     </span>
                   </div>
 
                   <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                    {item.title}
+                    {t(item.title)}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    {item.description}
+                    {t(item.description)}
                   </p>
 
                   {/* Learning Objectives */}
@@ -225,7 +225,7 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
                         {item.learning_objectives.map((obj, oIdx) => (
                           <li key={oIdx} className="text-xs text-slate-600 dark:text-slate-400 flex items-start space-x-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-1.5 flex-shrink-0"></span>
-                            <span>{obj}</span>
+                            <span>{t(obj)}</span>
                           </li>
                         ))}
                       </ul>
@@ -245,7 +245,7 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
                     }`}
                   >
                     {isCompleted ? <CheckCircle2 className="w-4 h-4 text-emerald-500" /> : <Circle className="w-4 h-4 text-slate-400" />}
-                    <span>{isCompleted ? "Completed" : "Mark Done"}</span>
+                    <span>{isCompleted ? t('Completed') : t('markAsComplete')}</span>
                   </button>
 
                   <button
@@ -253,7 +253,7 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
                     className="px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-sm flex items-center space-x-1.5 transition"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Practice Quiz</span>
+                    <span>{t('practiceQuiz')}</span>
                   </button>
                 </div>
 

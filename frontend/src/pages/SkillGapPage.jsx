@@ -189,10 +189,10 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            Skill Gap Engine
+            {t('skillGapEngine')}
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Benchmarking your current competencies against modern industry benchmarks.
+            {t('skillGapSubtitle')}
           </p>
         </div>
 
@@ -202,7 +202,7 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
             className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold transition flex items-center space-x-2 shadow-sm"
           >
             <Compass className="w-4 h-4 text-brand-500" />
-            <span>Career Explorer & Comparator</span>
+            <span>{t('careerExplorerBtn')}</span>
           </button>
 
           <button
@@ -210,7 +210,7 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
             className="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-500/20 transition flex items-center space-x-2"
           >
             <UploadCloud className="w-4 h-4" />
-            <span>Upload Resume / Portfolio</span>
+            <span>{t('uploadResume')}</span>
           </button>
         </div>
       </div>
@@ -229,7 +229,7 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800'
               }`}
             >
-              {r.title}
+              {t(r.title) || r.title}
             </button>
           );
         })}
@@ -239,13 +239,13 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
       <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1 text-center md:text-left">
           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-100 dark:bg-brand-950 text-brand-600 dark:text-brand-300">
-            Target Role Match
+            {t('currentTarget')}
           </span>
           <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-            {gapData?.readiness_percentage || 0}% Readiness for {selectedRole}
+            {gapData?.readiness_percentage || 0}% {t('matchReadiness')} • {t(selectedRole) || selectedRole}
           </h3>
           <p className="text-xs text-slate-500 max-w-xl">
-            You currently possess <span className="font-bold text-emerald-500">{gapData?.mastered_skills?.length || 0}</span> required skills. Closing the remaining gaps will require approximately <span className="font-bold text-brand-500">{gapData?.total_estimated_hours || 0}</span> hours of guided study.
+            {gapData?.mastered_skills?.length || 0} {t('masteredSkills').toLowerCase()} • {gapData?.total_estimated_hours || 0}h
           </p>
         </div>
 

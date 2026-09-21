@@ -31,7 +31,7 @@ export const Navbar = ({ onOpenAuth }) => {
               {t('brand')}
             </span>
             <span className="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-100 dark:bg-brand-950 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
-              AI Agent
+              {t('aiAgentBadge')}
             </span>
           </div>
         </div>
@@ -97,8 +97,8 @@ export const Navbar = ({ onOpenAuth }) => {
                   {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-xs font-bold leading-tight text-slate-800 dark:text-slate-200">{user?.name || user?.email || 'Learner'}</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{user?.profile?.target_role || 'Learner'}</p>
+                  <p className="text-xs font-bold leading-tight text-slate-800 dark:text-slate-200">{user?.name || user?.email || t('learner')}</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">{t(user?.profile?.target_role) || t('learner')}</p>
                 </div>
               </div>
               <button

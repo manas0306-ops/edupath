@@ -22,10 +22,10 @@ export const PracticePage = ({ onLaunchPractice }) => {
       {/* Top Header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-          Practice & Diagnostic Assessment Engine
+          {t('practiceEngineTitle')}
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-          Active coding tasks, scenario MCQs, and debugging challenges designed to reinforce retention.
+          {t('practiceEngineSubtitle')}
         </p>
       </div>
 
@@ -34,10 +34,10 @@ export const PracticePage = ({ onLaunchPractice }) => {
         <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
           <h4 className="text-xs font-bold text-amber-900 dark:text-amber-200">
-            Targeted Adaptive Practice Active
+            {t('struggleAlert')}
           </h4>
           <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed mt-0.5">
-            EduPath continuously monitors your accuracy across question types. Solving practice tasks below directly updates your skill readiness and roadmap priorities.
+            {t('struggleNotice')}
           </p>
         </div>
       </div>
@@ -58,7 +58,7 @@ export const PracticePage = ({ onLaunchPractice }) => {
                 <span className="text-2xl">{skill.icon}</span>
                 {skill.isStruggle && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300">
-                    Needs Practice
+                    {t('needsPractice')}
                   </span>
                 )}
               </div>
@@ -67,14 +67,14 @@ export const PracticePage = ({ onLaunchPractice }) => {
                 {skill.name}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {skill.category}
+                {t(skill.category)}
               </p>
 
               <div className="flex items-center space-x-2 mt-4 text-[10px] text-slate-400">
                 <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 font-semibold text-slate-600 dark:text-slate-300">
-                  {skill.difficulty}
+                  {t(skill.difficulty)}
                 </span>
-                <span>• {skill.questionsCount} Diagnostic Tasks</span>
+                <span>• {t('diagnosticTasksCount', { count: skill.questionsCount })}</span>
               </div>
             </div>
 
@@ -83,7 +83,7 @@ export const PracticePage = ({ onLaunchPractice }) => {
               className="mt-6 w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-sm flex items-center justify-center space-x-1.5 transition"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Start Practice Session</span>
+              <span>{t('startPracticeSession')}</span>
             </button>
           </div>
         ))}
