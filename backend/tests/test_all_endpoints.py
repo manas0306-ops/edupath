@@ -7,6 +7,17 @@ def anyio_backend():
     return 'asyncio'
 
 @pytest.mark.asyncio
+async def test_health_and_root():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        res = await client.get("/api/health")
+        assert res.status_code == 200
+        assert res.json()["status"] == "ok"
+
+        root_res = await client.get("/")
+        assert root_res.status_code == 200
+
+@pytest.mark.asyncio
 async def test_demo_login_and_profile():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -25,6 +36,28 @@ async def test_demo_login_and_profile():
         p_data = p_res.json()
         assert p_data["target_role"] == "AI/ML Engineer"
         assert p_data["streak_days"] >= 3
+
+@pytest.mark.asyncio
+async def test_document_extraction():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        res = await client.post("/api/auth/demo")
+        token = res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # Upload text content
+        sample_resume_text = "Proficient in Python, SQL, Git, and Docker. Developed machine learning models using Scikit-learn and Pandas. 3 years experience."
+        upload_res = await client.post(
+            "/api/documents/upload",
+            data={"raw_text": sample_resume_text},
+            headers=headers
+        )
+        assert upload_res.status_code == 200
+        extracted = upload_res.json()
+        skill_names = [s["name"] for s in extracted["technical_skills"]]
+        assert "Python" in skill_names
+        assert "SQL" in skill_names
+        assert "Docker" in skill_names
 
 @pytest.mark.asyncio
 async def test_skill_gap_analysis():
@@ -49,7 +82,7 @@ async def test_skill_gap_analysis():
         assert len(graph_data["edges"]) > 0
 
 @pytest.mark.asyncio
-async def test_roadmap_and_practice():
+async def test_roadmap_and_adaptive_struggle():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         res = await client.post("/api/auth/demo")
@@ -69,17 +102,18 @@ async def test_roadmap_and_practice():
         tasks = prac_res.json()
         assert len(tasks) > 0
 
-        # Submit practice answer
+        # Submit practice answer with a struggle (incorrect answer)
         task_id = tasks[0]["id"]
         sub_res = await client.post("/api/practice/submit", json={
             "task_id": task_id,
-            "user_answer": "Because gradients accumulate in buffers by default and would otherwise sum across iterations",
-            "time_taken_seconds": 25
+            "user_answer": "Wrong answer choice",
+            "time_taken_seconds": 120
         }, headers=headers)
         assert sub_res.status_code == 200
         sub_data = sub_res.json()
-        assert sub_data["is_correct"] is True
-        assert sub_data["score"] == 100.0
+        assert sub_data["is_correct"] is False
+        assert sub_data["struggle_detected"] is True
+        assert sub_data["adaptive_action"] is not None
 
 @pytest.mark.asyncio
 async def test_chat_ai_mentor():
