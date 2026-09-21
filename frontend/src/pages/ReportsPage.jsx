@@ -3,12 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import {
   FileBarChart, CheckCircle2, TrendingUp, AlertTriangle, Sparkles,
-  Calendar, Clock, Award, Printer, ArrowRight
+  Calendar, Clock, Award, Printer, ArrowRight, Volume2, Square, Zap
 } from 'lucide-react';
 
 export const ReportsPage = () => {
   const { user } = useAuth();
-  const { t } = useTheme();
+  const { t, isBriefMode, isSpeaking, speak, stopSpeaking, toggleSpeak } = useTheme();
 
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,12 +50,108 @@ export const ReportsPage = () => {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-8 animate-fade-in print:p-0">
       
+      {/* Executive Briefing Card for Reports (when Make it brief is ON) */}
+      {isBriefMode && (
+        <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-brand-500/10 to-indigo-500/10 border-2 border-amber-500/40 dark:border-amber-500/30 shadow-lg space-y-4 animate-fade-in print:hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/30">
+                <Zap className="w-5 h-5 fill-white" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>{t('briefReportsTitle')}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold uppercase tracking-wider">
+                    {t('briefModeActive')}
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {t('targetCareerTrack')} <span className="font-semibold text-brand-600 dark:text-brand-400">{t(user?.profile?.target_role) || 'AI/ML Engineer'}</span>
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                if (isSpeaking) {
+                  stopSpeaking();
+                  return;
+                }
+                const bullets = [
+                  t('briefReportsTitle'),
+                  t('briefReportsBullet1', { accuracy: report?.practice_accuracy_percentage || 82.5 }),
+                  t('briefHoursBullet', { hours: report?.learning_hours_logged || 11.5, goal: 12 }),
+                  `${t('completedActivities')}: ${report?.completed_activities_count || 8}`,
+                  t('briefReportsBullet2'),
+                  report?.ai_summary ? t(report.ai_summary) : null
+                ].filter(Boolean);
+                speak(bullets.join('. '));
+              }}
+              title={isSpeaking ? t('stopReading') : t('readBriefAloud')}
+              className={`px-3.5 py-1.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 shadow-sm ${
+                isSpeaking
+                  ? 'bg-red-500 text-white border-red-500 animate-pulse'
+                  : 'bg-white dark:bg-slate-900 border-amber-300 dark:border-amber-700/60 hover:bg-amber-50 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-300'
+              }`}
+            >
+              {isSpeaking ? (
+                <>
+                  <Square className="w-3.5 h-3.5 fill-current" />
+                  <span>{t('stopReading')}</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{t('readBriefAloud')}</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <ul className="space-y-2.5 text-xs text-slate-800 dark:text-slate-200">
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed">
+                {t('briefReportsBullet1', { accuracy: report?.practice_accuracy_percentage || 82.5 })}
+              </span>
+            </li>
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-brand-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed">
+                {t('briefHoursBullet', { hours: report?.learning_hours_logged || 11.5, goal: 12 })}
+              </span>
+            </li>
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-sky-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed">
+                {t('completedActivities')}: <strong className="text-slate-900 dark:text-white">{report?.completed_activities_count || 8}</strong>
+              </span>
+            </li>
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed font-semibold text-amber-800 dark:text-amber-300">
+                {t('briefReportsBullet2')}
+              </span>
+            </li>
+          </ul>
+        </div>
+      )}
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {t('reportsTitle')}
-          </h1>
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {t('reportsTitle')}
+            </h1>
+            <button
+              onClick={() => toggleSpeak(`${t('reportsTitle')}. ${t('reportsSubtitle')}. ${report?.ai_summary ? t(report.ai_summary) : ''}`)}
+              title={t('readAloud')}
+              className="p-1 rounded-lg text-slate-400 hover:text-brand-500 transition"
+            >
+              <Volume2 className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {t('reportsSubtitle')}
           </p>

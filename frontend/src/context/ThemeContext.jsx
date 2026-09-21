@@ -1,7 +1,17 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { translations, dynamicPhrases } from '../i18n/translations';
 
 const ThemeContext = createContext();
+
+const LANG_VOICE_MAP = {
+  en: 'en-US',
+  hi: 'hi-IN',
+  pa: 'pa-IN',
+  es: 'es-ES',
+  fr: 'fr-FR',
+  de: 'de-DE',
+  ja: 'ja-JP'
+};
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
@@ -11,6 +21,13 @@ export const ThemeProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem('edupath_lang') || 'en';
   });
+
+  const [isBriefMode, setIsBriefMode] = useState(() => {
+    return localStorage.getItem('edupath_brief') === 'true';
+  });
+
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const activeUtteranceRef = useRef(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -24,10 +41,117 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('edupath_lang', language);
+    // Stop any ongoing speech if language changes
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
   }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem('edupath_brief', String(isBriefMode));
+  }, [isBriefMode]);
+
+  // Clean up speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
+  const toggleBriefMode = () => {
+    setIsBriefMode(prev => !prev);
+  };
+
+  const stopSpeaking = () => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    activeUtteranceRef.current = null;
+    setIsSpeaking(false);
+  };
+
+  const speak = (rawText, langOverride) => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      console.warn('SpeechSynthesis is not supported in this environment.');
+      return;
+    }
+
+    // Cancel any current utterance
+    window.speechSynthesis.cancel();
+
+    if (!rawText) {
+      setIsSpeaking(false);
+      return;
+    }
+
+    // Clean text: strip markdown symbols, URLs, extra whitespace
+    const cleanText = String(rawText)
+      .replace(/<[^>]*>/g, '')
+      .replace(/[*_#`~[\]()]/g, ' ')
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (!cleanText) {
+      setIsSpeaking(false);
+      return;
+    }
+
+    const targetLangCode = langOverride || LANG_VOICE_MAP[language] || 'en-US';
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = targetLangCode;
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    // Pick best available voice matching the language
+    const voices = window.speechSynthesis.getVoices() || [];
+    let matchedVoice = voices.find(v => v.lang.toLowerCase() === targetLangCode.toLowerCase());
+    if (!matchedVoice) {
+      const prefix = targetLangCode.split('-')[0].toLowerCase();
+      matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(prefix));
+    }
+    // Fallback for Punjabi (pa) to Hindi (hi) if pa-IN voice is absent on OS
+    if (!matchedVoice && targetLangCode.startsWith('pa')) {
+      matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith('hi'));
+    }
+    if (matchedVoice) {
+      utterance.voice = matchedVoice;
+    }
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+    };
+
+    utterance.onend = () => {
+      activeUtteranceRef.current = null;
+      setIsSpeaking(false);
+    };
+
+    utterance.onerror = (e) => {
+      if (e.error !== 'interrupted' && e.error !== 'canceled') {
+        console.warn('Speech synthesis utterance error:', e);
+      }
+      activeUtteranceRef.current = null;
+      setIsSpeaking(false);
+    };
+
+    activeUtteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const toggleSpeak = (text, langOverride) => {
+    if (isSpeaking) {
+      stopSpeaking();
+    } else {
+      speak(text, langOverride);
+    }
   };
 
   const t = (key, params) => {
@@ -84,11 +208,24 @@ export const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, language, setLanguage, t }}>
+    <ThemeContext.Provider value={{
+      theme,
+      toggleTheme,
+      language,
+      setLanguage,
+      isBriefMode,
+      toggleBriefMode,
+      isSpeaking,
+      speak,
+      stopSpeaking,
+      toggleSpeak,
+      t
+    }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
 export const useTheme = () => useContext(ThemeContext);
+
 

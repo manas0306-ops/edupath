@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { BrainCircuit, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Zap, Award } from 'lucide-react';
+import { BrainCircuit, Sparkles, CheckCircle2, AlertTriangle, ArrowRight, Zap, Award, Volume2, Square } from 'lucide-react';
 
 const SKILLS_CATALOG = [
   { name: "PyTorch", category: "Deep Learning", difficulty: "Advanced", questionsCount: 4, icon: "🔥" },
@@ -14,16 +14,98 @@ const SKILLS_CATALOG = [
 
 export const PracticePage = ({ onLaunchPractice }) => {
   const { user } = useAuth();
-  const { t } = useTheme();
+  const { t, isBriefMode, isSpeaking, speak, stopSpeaking, toggleSpeak } = useTheme();
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto space-y-8 animate-fade-in">
       
+      {/* Executive Briefing Card for Practice (when Make it brief is ON) */}
+      {isBriefMode && (
+        <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-brand-500/10 to-indigo-500/10 border-2 border-amber-500/40 dark:border-amber-500/30 shadow-lg space-y-4 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/30">
+                <Zap className="w-5 h-5 fill-white" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>{t('briefSummaryTitle')}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold uppercase tracking-wider">
+                    {t('briefModeActive')}
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {t('practiceEngineTitle')}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                if (isSpeaking) {
+                  stopSpeaking();
+                  return;
+                }
+                const bullets = [
+                  t('practiceEngineTitle'),
+                  t('practiceEngineSubtitle'),
+                  `${t('struggleAlert')}: SQL. ${t('struggleNotice')}`,
+                  `6 ${t('practice')} modules available.`
+                ];
+                speak(bullets.join('. '));
+              }}
+              title={isSpeaking ? t('stopReading') : t('readBriefAloud')}
+              className={`px-3.5 py-1.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 shadow-sm ${
+                isSpeaking
+                  ? 'bg-red-500 text-white border-red-500 animate-pulse'
+                  : 'bg-white dark:bg-slate-900 border-amber-300 dark:border-amber-700/60 hover:bg-amber-50 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-300'
+              }`}
+            >
+              {isSpeaking ? (
+                <>
+                  <Square className="w-3.5 h-3.5 fill-current" />
+                  <span>{t('stopReading')}</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{t('readBriefAloud')}</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <ul className="space-y-2.5 text-xs text-slate-800 dark:text-slate-200">
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed font-semibold text-amber-800 dark:text-amber-300">
+                {t('struggleAlert')}: SQL ({t('needsPractice')}).
+              </span>
+            </li>
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed">
+                6 diagnostic practice modules ready for evaluation and code verification.
+              </span>
+            </li>
+          </ul>
+        </div>
+      )}
+
       {/* Top Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-          {t('practiceEngineTitle')}
-        </h1>
+        <div className="flex items-center space-x-2">
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+            {t('practiceEngineTitle')}
+          </h1>
+          <button
+            onClick={() => toggleSpeak(`${t('practiceEngineTitle')}. ${t('practiceEngineSubtitle')}.`)}
+            title={t('readAloud')}
+            className="p-1 rounded-lg text-slate-400 hover:text-brand-500 transition"
+          >
+            <Volume2 className="w-4 h-4" />
+          </button>
+        </div>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
           {t('practiceEngineSubtitle')}
         </p>

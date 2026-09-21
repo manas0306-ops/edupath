@@ -3,12 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import {
   Flame, Zap, Compass, CheckCircle2, Circle, ArrowRight, AlertTriangle,
-  Clock, TrendingUp, Sparkles, Brain, BookOpen, Layers
+  Clock, TrendingUp, Sparkles, Brain, BookOpen, Layers, Volume2, Square
 } from 'lucide-react';
 
 export const DashboardPage = ({ onNavigate, onLaunchPractice }) => {
   const { user } = useAuth();
-  const { t } = useTheme();
+  const { t, isBriefMode, isSpeaking, speak, stopSpeaking, toggleSpeak } = useTheme();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,15 +55,159 @@ export const DashboardPage = ({ onNavigate, onLaunchPractice }) => {
   const role = user?.profile?.target_role || "AI/ML Engineer";
   const name = user?.name?.split(' ')[0] || "Learner";
 
+  const handleSpeakBrief = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+      return;
+    }
+    const bullets = [
+      t('briefSummaryTitle'),
+      `${t('targetCareerTrack')} ${t(role)}`,
+      t('briefReadinessBullet', {
+        pct: stats?.overall_progress_percentage || 28.5,
+        count: stats?.skills_acquired_count || 6,
+        remaining: stats?.remaining_gaps_count || 5
+      }),
+      stats?.struggle_topics && stats.struggle_topics.length > 0
+        ? t('briefStruggleBullet', {
+            topics: stats.struggle_topics.map(item => t(item)).join(', ')
+          })
+        : null,
+      t('briefNextStepBullet', {
+        step: t(stats?.recommended_next_step || 'Review PyTorch Autograd & Computational Graphs'),
+        duration: t('35 mins')
+      }),
+      t('briefHoursBullet', {
+        hours: stats?.total_learning_hours || 14.5,
+        goal: 12
+      }),
+      stats?.ai_insights ? t('briefInsightBullet', { insight: t(stats.ai_insights) }) : null
+    ].filter(Boolean);
+
+    speak(bullets.join('. '));
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 animate-fade-in">
       
+      {/* Executive Briefing Card (Rendered prominently when 'Make it brief' is toggled ON) */}
+      {isBriefMode && (
+        <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-brand-500/10 to-indigo-500/10 border-2 border-amber-500/40 dark:border-amber-500/30 shadow-lg space-y-4 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-500/20 pb-3">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/30 flex items-center justify-center">
+                <Zap className="w-5 h-5 fill-white" />
+              </div>
+              <div>
+                <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                  <span>{t('briefSummaryTitle')}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold uppercase tracking-wider">
+                    {t('briefModeActive')}
+                  </span>
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {t('targetCareerTrack')} <span className="font-semibold text-brand-600 dark:text-brand-400">{t(role)}</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Read Brief Aloud Button */}
+            <button
+              onClick={handleSpeakBrief}
+              title={isSpeaking ? t('stopReading') : t('readBriefAloud')}
+              className={`px-3.5 py-1.5 rounded-xl border text-xs font-bold transition flex items-center space-x-2 shadow-sm ${
+                isSpeaking
+                  ? 'bg-red-500 text-white border-red-500 animate-pulse'
+                  : 'bg-white dark:bg-slate-900 border-amber-300 dark:border-amber-700/60 hover:bg-amber-50 dark:hover:bg-slate-800 text-amber-700 dark:text-amber-300'
+              }`}
+            >
+              {isSpeaking ? (
+                <>
+                  <Square className="w-3.5 h-3.5 fill-current" />
+                  <span>{t('stopReading')}</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{t('readBriefAloud')}</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Bullet points localized in selected language */}
+          <ul className="space-y-2.5 text-xs text-slate-800 dark:text-slate-200">
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-brand-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed">
+                {t('briefReadinessBullet', {
+                  pct: stats?.overall_progress_percentage || 28.5,
+                  count: stats?.skills_acquired_count || 6,
+                  remaining: stats?.remaining_gaps_count || 5
+                })}
+              </span>
+            </li>
+
+            {stats?.struggle_topics && stats.struggle_topics.length > 0 && (
+              <li className="flex items-start space-x-3">
+                <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 flex-shrink-0"></span>
+                <span className="leading-relaxed font-semibold text-amber-800 dark:text-amber-300">
+                  {t('briefStruggleBullet', {
+                    topics: stats.struggle_topics.map(item => t(item)).join(', ')
+                  })}
+                </span>
+              </li>
+            )}
+
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed">
+                {t('briefNextStepBullet', {
+                  step: t(stats?.recommended_next_step || 'Review PyTorch Autograd & Computational Graphs'),
+                  duration: t('35 mins')
+                })}
+              </span>
+            </li>
+
+            <li className="flex items-start space-x-3">
+              <span className="w-2 h-2 rounded-full bg-sky-500 mt-1.5 flex-shrink-0"></span>
+              <span className="leading-relaxed">
+                {t('briefHoursBullet', {
+                  hours: stats?.total_learning_hours || 14.5,
+                  goal: 12
+                })}
+              </span>
+            </li>
+
+            {stats?.ai_insights && (
+              <li className="flex items-start space-x-3">
+                <span className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 flex-shrink-0"></span>
+                <span className="leading-relaxed italic text-slate-700 dark:text-slate-300">
+                  {t('briefInsightBullet', {
+                    insight: t(stats.ai_insights)
+                  })}
+                </span>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+
       {/* Welcome Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-brand-900/40 via-sky-900/20 to-indigo-900/30 border border-brand-300/30 dark:border-brand-800/50 backdrop-blur-md">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {t('goodDay', { name })}
-          </h1>
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              {t('goodDay', { name })}
+            </h1>
+            <button
+              onClick={() => toggleSpeak(`${t('goodDay', { name })}. ${t('targetCareerTrack')} ${t(role)}.`)}
+              title={t('readAloud')}
+              className="p-1 rounded-lg text-slate-400 hover:text-brand-500 transition"
+            >
+              <Volume2 className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
             {t('targetCareerTrack')} <span className="font-bold text-brand-600 dark:text-brand-400">{t(role)}</span>
           </p>
@@ -84,7 +228,16 @@ export const DashboardPage = ({ onNavigate, onLaunchPractice }) => {
         <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-start space-x-3">
           <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="font-bold">{t('struggleAlert')}: {stats.struggle_topics.map(item => t(item)).join(', ')}</h4>
+            <div className="flex items-center space-x-2">
+              <h4 className="font-bold">{t('struggleAlert')}: {stats.struggle_topics.map(item => t(item)).join(', ')}</h4>
+              <button
+                onClick={() => toggleSpeak(`${t('struggleAlert')}: ${stats.struggle_topics.map(item => t(item)).join(', ')}. ${t('struggleNotice')}`)}
+                title={t('readAloud')}
+                className="p-0.5 rounded text-amber-600 dark:text-amber-300 hover:text-amber-800 transition"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
             <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
               {t('struggleNotice')}
             </p>
@@ -158,10 +311,22 @@ export const DashboardPage = ({ onNavigate, onLaunchPractice }) => {
         <div className="lg:col-span-2 space-y-6">
           <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                <BookOpen className="w-4 h-4 text-brand-500" />
-                <span>{t('todayGoals')}</span>
-              </h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                  <BookOpen className="w-4 h-4 text-brand-500" />
+                  <span>{t('todayGoals')}</span>
+                </h3>
+                <button
+                  onClick={() => {
+                    const goalTexts = stats?.today_goals?.map(g => `${t(g.title)} (${t(g.duration)})`).join('. ') || '';
+                    toggleSpeak(`${t('todayGoals')}. ${goalTexts}. ${t('recommendedNextStep')}: ${t(stats?.recommended_next_step)}`);
+                  }}
+                  title={t('readAloud')}
+                  className="p-1 rounded-lg text-slate-400 hover:text-brand-500 transition"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
               <span className="text-[11px] text-slate-400">{t('clickToCheckOff')}</span>
             </div>
 
@@ -212,9 +377,18 @@ export const DashboardPage = ({ onNavigate, onLaunchPractice }) => {
         {/* Right 1 Col: AI Insights & Quick Links */}
         <div className="space-y-6">
           <div className="p-6 rounded-3xl bg-gradient-to-br from-indigo-900/30 via-slate-900 to-slate-900 border border-indigo-500/20 shadow-sm text-white space-y-4">
-            <div className="flex items-center space-x-2 text-indigo-400 font-bold text-xs">
-              <Sparkles className="w-4 h-4" />
-              <span>{t('aiLearningInsights')}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-indigo-400 font-bold text-xs">
+                <Sparkles className="w-4 h-4" />
+                <span>{t('aiLearningInsights')}</span>
+              </div>
+              <button
+                onClick={() => toggleSpeak(`${t('aiLearningInsights')}. ${t(stats?.ai_insights)}`)}
+                title={t('readAloud')}
+                className="p-1 rounded-lg text-indigo-400 hover:text-white transition"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+              </button>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
               "{t(stats?.ai_insights)}"

@@ -3,7 +3,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import {
   Bot, Send, Mic, MicOff, Copy, Check, Sparkles, RefreshCw, Trash2, User,
-  MessageSquare, ChevronDown, ChevronUp, Code2
+  MessageSquare, ChevronDown, ChevronUp, Code2, Volume2
 } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
@@ -15,7 +15,7 @@ const SUGGESTED_PROMPTS = [
 ];
 
 export const ChatBot = ({ isFloating = false }) => {
-  const { language, t } = useTheme();
+  const { language, t, toggleSpeak } = useTheme();
   const { user } = useAuth();
   const [messages, setMessages] = useState([
     {
@@ -276,6 +276,24 @@ How can I help accelerate your learning journey today? Click a starter prompt be
                   : 'bg-slate-100 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200/60 dark:border-slate-700/50'
               }`}>
                 {renderFormattedContent(m.content)}
+                {!isUser && (
+                  <div className="mt-2 pt-1 border-t border-slate-200/60 dark:border-slate-700/50 flex items-center justify-end space-x-2">
+                    <button
+                      onClick={() => toggleSpeak(m.content)}
+                      title={t('readAloud')}
+                      className="p-1 rounded text-slate-400 hover:text-brand-500 transition"
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => copyMessage(m.content, m.id)}
+                      title={t('copy')}
+                      className="p-1 rounded text-slate-400 hover:text-brand-500 transition"
+                    >
+                      {copiedId === m.id ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           );

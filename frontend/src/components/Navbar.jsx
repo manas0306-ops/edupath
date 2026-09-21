@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Sun, Moon, Globe, Zap, Flame, User as UserIcon, LogOut, Compass } from 'lucide-react';
+import { Sun, Moon, Globe, Zap, Flame, User as UserIcon, LogOut, Compass, Volume2, Square, ListFilter } from 'lucide-react';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇺🇸' },
@@ -14,8 +14,50 @@ const LANGUAGES = [
 ];
 
 export const Navbar = ({ onOpenAuth }) => {
-  const { theme, toggleTheme, language, setLanguage, t } = useTheme();
+  const {
+    theme,
+    toggleTheme,
+    language,
+    setLanguage,
+    isBriefMode,
+    toggleBriefMode,
+    isSpeaking,
+    speak,
+    stopSpeaking,
+    t
+  } = useTheme();
   const { user, logout, isAuthenticated } = useAuth();
+
+  const handleGlobalReadAloud = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+      return;
+    }
+
+    // Extract visible text from the active main area
+    const mainEl = document.querySelector('main');
+    if (mainEl) {
+      const elements = mainEl.querySelectorAll('h1, h2, h3, h4, p, li, [data-readable]');
+      let textPieces = [];
+      elements.forEach(el => {
+        if (el.offsetParent !== null) {
+          const str = (el.innerText || '').trim();
+          // Filter out buttons, brand duplicates, or tiny numbers
+          if (str && str.length > 2 && !textPieces.includes(str)) {
+            textPieces.push(str);
+          }
+        }
+      });
+      const content = textPieces.join('. ');
+      if (content) {
+        speak(content);
+        return;
+      }
+    }
+
+    // Fallback if main has no text
+    speak(`${t('brand')}. ${t('tagline')}`);
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-colors">
@@ -53,6 +95,44 @@ export const Navbar = ({ onOpenAuth }) => {
               </div>
             </div>
           )}
+
+          {/* Make it brief Mode Toggle */}
+          <button
+            onClick={toggleBriefMode}
+            title={isBriefMode ? t('detailedView') : t('makeItBrief')}
+            className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition ${
+              isBriefMode
+                ? 'bg-amber-500/15 border-amber-500 text-amber-600 dark:text-amber-400 shadow-sm shadow-amber-500/20'
+                : 'border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            <Zap className={`w-3.5 h-3.5 ${isBriefMode ? 'fill-amber-500 text-amber-500 animate-pulse' : 'text-amber-500'}`} />
+            <span className="hidden sm:inline">{isBriefMode ? t('detailedView') : t('makeItBrief')}</span>
+            {isBriefMode && <span className="sm:hidden text-[10px] font-bold text-amber-500">BRIEF</span>}
+          </button>
+
+          {/* Read Aloud Voice Reader */}
+          <button
+            onClick={handleGlobalReadAloud}
+            title={isSpeaking ? t('stopReading') : t('readAloud')}
+            className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition ${
+              isSpeaking
+                ? 'bg-red-500/15 border-red-500 text-red-600 dark:text-red-400 animate-pulse shadow-sm shadow-red-500/20'
+                : 'border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+            }`}
+          >
+            {isSpeaking ? (
+              <>
+                <Square className="w-3.5 h-3.5 fill-red-500 text-red-500" />
+                <span className="hidden sm:inline">{t('stopReading')}</span>
+              </>
+            ) : (
+              <>
+                <Volume2 className="w-3.5 h-3.5 text-brand-500" />
+                <span className="hidden sm:inline">{t('readAloud')}</span>
+              </>
+            )}
+          </button>
 
           {/* Language Selector */}
           <div className="relative group">
