@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { SkillGraph } from '../components/SkillGraph';
 import {
   UploadCloud, CheckCircle2, AlertCircle, Sparkles, Loader2, ArrowRight,
-  Plus, Trash2, Edit3, Layers, BookOpen, Clock, Zap, Target
+  Plus, Trash2, Edit3, Layers, BookOpen, Clock, Zap, Target, Compass, X
 } from 'lucide-react';
 
 export const SkillGapPage = ({ onLaunchPractice }) => {
@@ -17,6 +17,11 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
   const [graphData, setGraphData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Career Explorer state
+  const [isCareerOpen, setIsCareerOpen] = useState(false);
+  const [careerList, setCareerList] = useState([]);
+  const [careerLoading, setCareerLoading] = useState(false);
+
   // Upload modal state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
@@ -24,6 +29,7 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
   const [parsing, setParsing] = useState(false);
   const [extractedData, setExtractedData] = useState(null);
   const [customSkillInput, setCustomSkillInput] = useState('');
+
 
   const token = localStorage.getItem('edupath_token');
 
@@ -72,6 +78,25 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
   const handleRoleChange = (roleTitle) => {
     setSelectedRole(roleTitle);
   };
+
+  const fetchCareerExplorer = async () => {
+    setIsCareerOpen(true);
+    setCareerLoading(true);
+    try {
+      const res = await fetch('/api/skills/compare-roles', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCareerList(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCareerLoading(false);
+    }
+  };
+
 
   const handleUploadSubmit = async () => {
     if (!uploadFile && !uploadText.trim()) return;
@@ -171,13 +196,23 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsUploadOpen(true)}
-          className="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-500/20 transition flex items-center space-x-2 w-fit"
-        >
-          <UploadCloud className="w-4 h-4" />
-          <span>Upload Resume / Portfolio</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={fetchCareerExplorer}
+            className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold transition flex items-center space-x-2 shadow-sm"
+          >
+            <Compass className="w-4 h-4 text-brand-500" />
+            <span>Career Explorer & Comparator</span>
+          </button>
+
+          <button
+            onClick={() => setIsUploadOpen(true)}
+            className="px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold shadow-md shadow-brand-500/20 transition flex items-center space-x-2"
+          >
+            <UploadCloud className="w-4 h-4" />
+            <span>Upload Resume / Portfolio</span>
+          </button>
+        </div>
       </div>
 
       {/* Role Picker Selector Tabs */}
@@ -469,6 +504,153 @@ export const SkillGapPage = ({ onLaunchPractice }) => {
         </div>
       )}
 
+      {/* Career Explorer & Role Comparator Modal */}
+      {isCareerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center space-x-2">
+                <span className="p-1.5 rounded-lg bg-brand-100 dark:bg-brand-950 text-brand-600 dark:text-brand-400">
+                  <Compass className="w-5 h-5" />
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    Industry Career Explorer & Cross-Role Benchmark
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Compare your current competencies against 5 high-demand tech roles simultaneously.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsCareerOpen(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-4">
+              {careerLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 space-y-3">
+                  <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
+                  <p className="text-xs text-slate-400">Evaluating your skills against all industry roles...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {careerList.map((comp) => {
+                    const isCurrent = selectedRole === comp.role_title;
+                    return (
+                      <div
+                        key={comp.role_id}
+                        className={`p-5 rounded-2xl border transition-all flex flex-col justify-between ${
+                          isCurrent
+                            ? 'bg-brand-50/40 dark:bg-brand-950/20 border-brand-300 dark:border-brand-700 ring-2 ring-brand-500/20'
+                            : 'bg-slate-50/50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700/60'
+                        }`}
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                                  {comp.role_title}
+                                </h4>
+                                {isCurrent && (
+                                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-brand-600 text-white">
+                                    Current Target
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
+                                {comp.description}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2 text-[10px]">
+                            <span className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold">
+                              💰 {comp.average_salary}
+                            </span>
+                            <span className="px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-semibold">
+                              📈 {comp.demand}
+                            </span>
+                          </div>
+
+                          {/* Readiness Progress Bar */}
+                          <div>
+                            <div className="flex items-center justify-between text-[11px] font-bold mb-1">
+                              <span className="text-slate-600 dark:text-slate-400">Match Readiness</span>
+                              <span className={comp.readiness_percentage >= 50 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}>
+                                {comp.readiness_percentage}%
+                              </span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  comp.readiness_percentage >= 60 ? 'bg-emerald-500' : comp.readiness_percentage >= 35 ? 'bg-amber-500' : 'bg-rose-500'
+                                }`}
+                                style={{ width: `${comp.readiness_percentage}%` }}
+                              ></div>
+                            </div>
+                            <p className="text-[10px] text-slate-400 mt-1">
+                              {comp.matched_skills_count} of {comp.total_required_skills} skills mastered • Est. {comp.estimated_weeks_to_ready} weeks
+                            </p>
+                          </div>
+
+                          {/* Skills Pills */}
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Missing Gaps:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {comp.missing_skills.slice(0, 4).map((sk, idx) => (
+                                <span key={idx} className="text-[9px] px-2 py-0.5 rounded bg-slate-200/80 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                                  {sk}
+                                </span>
+                              ))}
+                              {comp.missing_skills.length > 4 && (
+                                <span className="text-[9px] text-slate-400">+{comp.missing_skills.length - 4} more</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          disabled={isCurrent}
+                          onClick={() => {
+                            handleRoleChange(comp.role_title);
+                            setIsCareerOpen(false);
+                          }}
+                          className={`mt-4 w-full py-2 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${
+                            isCurrent
+                              ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                              : 'bg-brand-600 hover:bg-brand-500 text-white shadow-sm'
+                          }`}
+                        >
+                          <span>{isCurrent ? "Active Target Role" : "Select As Target Track"}</span>
+                          {!isCurrent && <ArrowRight className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-end">
+              <button
+                onClick={() => setIsCareerOpen(false)}
+                className="px-4 py-1.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800"
+              >
+                Close Explorer
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+

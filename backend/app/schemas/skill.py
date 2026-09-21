@@ -66,3 +66,19 @@ class TargetRoleInfo(BaseModel):
     average_salary: str
     demand: str
     key_skills: List[str]
+
+class RoleComparisonItem(BaseModel):
+    role_id: str
+    role_title: str
+    description: str
+    average_salary: str
+    demand: str
+    total_required_skills: int
+    matched_skills_count: int
+    missing_skills_count: int
+    readiness_percentage: float
+    matched_skills: List[str]
+    missing_skills: List[str]
+    estimated_weeks_to_ready: int
+    difficulty_curve: str
+

@@ -9,11 +9,11 @@ from backend.app.models.user import User, Profile
 from backend.app.models.skill import UserSkill, SkillGap
 from backend.app.schemas.skill import (
     SkillExtracted, SkillConfirmRequest, SkillGapAnalysisResponse,
-    SkillGraphData, TargetRoleInfo
+    SkillGraphData, TargetRoleInfo, RoleComparisonItem
 )
 from backend.app.services.auth import get_current_user
 from backend.app.services.skill_gap import (
-    get_available_roles, compute_skill_gaps, build_skill_graph
+    get_available_roles, compute_skill_gaps, build_skill_graph, compare_all_roles
 )
 
 router = APIRouter(prefix="/skills", tags=["Skills & Gap Analysis"])
@@ -21,6 +21,18 @@ router = APIRouter(prefix="/skills", tags=["Skills & Gap Analysis"])
 @router.get("/roles", response_model=List[TargetRoleInfo])
 async def list_target_roles():
     return get_available_roles()
+
+@router.get("/compare-roles", response_model=List[RoleComparisonItem])
+async def compare_user_against_all_roles(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(UserSkill).filter(UserSkill.user_id == current_user.id))
+    skills = [s.skill_name for s in result.scalars().all()]
+    if not skills:
+        skills = ["Python", "SQL", "Git"]
+    return compare_all_roles(skills)
+
 
 @router.get("/my-skills", response_model=List[SkillExtracted])
 async def get_my_skills(

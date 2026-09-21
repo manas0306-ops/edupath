@@ -132,3 +132,42 @@ async def test_chat_ai_mentor():
         assert c_data["role"] == "assistant"
         assert len(c_data["content"]) > 20
         assert "Focus" in c_data["content"] or "learn" in c_data["content"].lower()
+
+@pytest.mark.asyncio
+async def test_career_comparison_and_project_generation():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        res = await client.post("/api/auth/demo")
+        token = res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Compare roles
+        comp_res = await client.get("/api/skills/compare-roles", headers=headers)
+        assert comp_res.status_code == 200
+        comp_data = comp_res.json()
+        assert len(comp_data) >= 3
+        assert "readiness_percentage" in comp_data[0]
+
+        # 2. Generate portfolio project
+        proj_res = await client.post("/api/roadmap/projects/generate", json={
+            "topic": "Distributed Graph Recommendation Engine",
+            "difficulty": "Advanced",
+            "target_skills": ["Python", "PyTorch", "FastAPI", "Docker"]
+        }, headers=headers)
+        assert proj_res.status_code == 200
+        proj_data = proj_res.json()
+        assert "Distributed Graph Recommendation Engine" in proj_data["title"]
+        assert len(proj_data["github_readme"]) > 50
+        assert len(proj_data["resume_bullet"]) > 20
+        project_id = proj_data["id"]
+
+        # 3. Update generated project
+        upd_res = await client.put(f"/api/roadmap/projects/{project_id}", json={
+            "status": "Completed",
+            "resume_bullet": "Customized edited resume bullet."
+        }, headers=headers)
+        assert upd_res.status_code == 200
+        upd_data = upd_res.json()
+        assert upd_data["status"] == "Completed"
+        assert upd_data["resume_bullet"] == "Customized edited resume bullet."
+

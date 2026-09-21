@@ -3,8 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import {
   Milestone, CheckCircle2, Circle, Clock, ExternalLink, Sparkles,
-  BookOpen, Video, FileCode, Award, ArrowRight, RefreshCw, Layers
+  BookOpen, Video, FileCode, Award, ArrowRight, RefreshCw, Layers, Zap, Loader2
 } from 'lucide-react';
+
 
 export const RoadmapPage = ({ onLaunchPractice }) => {
   const { user } = useAuth();
@@ -13,6 +14,9 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
   const [roadmap, setRoadmap] = useState(null);
   const [loading, setLoading] = useState(true);
   const [togglingId, setTogglingId] = useState(null);
+  const [hours, setHours] = useState(user?.profile?.weekly_hours || 10);
+  const [updatingVelocity, setUpdatingVelocity] = useState(false);
+
 
   const token = localStorage.getItem('edupath_token');
 
@@ -54,6 +58,30 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
       setTogglingId(null);
     }
   };
+
+  const handleUpdateVelocity = async (newHours) => {
+    setHours(newHours);
+    setUpdatingVelocity(true);
+    try {
+      const res = await fetch('/api/roadmap/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ weekly_hours: newHours })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRoadmap(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingVelocity(false);
+    }
+  };
+
 
   const getResourceIcon = (type) => {
     switch (type?.toLowerCase()) {
@@ -106,7 +134,43 @@ export const RoadmapPage = ({ onLaunchPractice }) => {
         </div>
       </div>
 
+      {/* Velocity & Weekly Study Hours Controller */}
+      <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3">
+          <span className="p-2 rounded-xl bg-brand-100 dark:bg-brand-950 text-brand-600 dark:text-brand-400">
+            <Zap className="w-4 h-4" />
+          </span>
+          <div>
+            <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+              Study Pace & Velocity Calibration
+            </h4>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Select your weekly commitment to recalculate milestone completion timelines.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-1.5 overflow-x-auto">
+          {[5, 10, 15, 20, 30].map((h) => (
+            <button
+              key={h}
+              disabled={updatingVelocity}
+              onClick={() => handleUpdateVelocity(h)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                hours === h
+                  ? 'bg-brand-600 text-white shadow-sm'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+              }`}
+            >
+              {h}h / wk
+            </button>
+          ))}
+          {updatingVelocity && <Loader2 className="w-3.5 h-3.5 text-brand-500 animate-spin ml-2" />}
+        </div>
+      </div>
+
       {/* Weekly Items Timeline */}
+
       <div className="space-y-6">
         {roadmap?.items?.map((item) => {
           const isCompleted = item.status === 'completed';

@@ -1,5 +1,8 @@
 from typing import List, Dict, Tuple, Set
-from backend.app.schemas.skill import SkillGapItem, SkillGapAnalysisResponse, SkillGraphNode, SkillGraphEdge, SkillGraphData, TargetRoleInfo
+from backend.app.schemas.skill import (
+    SkillGapItem, SkillGapAnalysisResponse, SkillGraphNode,
+    SkillGraphEdge, SkillGraphData, TargetRoleInfo, RoleComparisonItem
+)
 
 # Comprehensive benchmark role definitions
 ROLE_DEFINITIONS: Dict[str, Dict] = {
@@ -198,3 +201,50 @@ def build_skill_graph(current_skills: List[str], target_role: str) -> SkillGraph
         edges=edges,
         target_role=target_role
     )
+
+def compare_all_roles(current_skills: List[str]) -> List[RoleComparisonItem]:
+    current_set = {s.lower().strip() for s in current_skills}
+    comparisons = []
+    
+    for role_title, role_data in ROLE_DEFINITIONS.items():
+        role_skills = role_data["skills"]
+        total_count = len(role_skills)
+        matched = []
+        missing = []
+        missing_hours = 0
+        
+        for req in role_skills:
+            if req["name"].lower().strip() in current_set:
+                matched.append(req["name"])
+            else:
+                missing.append(req["name"])
+                missing_hours += req["hours"]
+                
+        readiness = round((len(matched) / total_count) * 100, 1) if total_count > 0 else 0.0
+        est_weeks = max(1, round(missing_hours / 10))
+        
+        diff = "Moderate"
+        if readiness >= 70:
+            diff = "Low (Fast Transition)"
+        elif readiness < 35:
+            diff = "High (Substantial Reskilling)"
+            
+        comparisons.append(RoleComparisonItem(
+            role_id=role_title.lower().replace(" ", "-").replace("/", "-"),
+            role_title=role_title,
+            description=role_data["description"],
+            average_salary=role_data["average_salary"],
+            demand=role_data["demand"],
+            total_required_skills=total_count,
+            matched_skills_count=len(matched),
+            missing_skills_count=len(missing),
+            readiness_percentage=readiness,
+            matched_skills=matched,
+            missing_skills=missing,
+            estimated_weeks_to_ready=est_weeks,
+            difficulty_curve=diff
+        ))
+        
+    comparisons.sort(key=lambda x: x.readiness_percentage, reverse=True)
+    return comparisons
+

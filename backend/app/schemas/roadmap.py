@@ -53,3 +53,16 @@ class ProjectResponse(BaseModel):
     status: str
     github_readme: str
     resume_bullet: str
+
+class ProjectGenerateRequest(BaseModel):
+    topic: Optional[str] = None
+    difficulty: Optional[str] = "Intermediate"
+    target_skills: Optional[List[str]] = None
+
+class ProjectUpdateRequest(BaseModel):
+    title: Optional[str] = None
+    problem_statement: Optional[str] = None
+    github_readme: Optional[str] = None
+    resume_bullet: Optional[str] = None
+    status: Optional[str] = None
+
