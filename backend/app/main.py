@@ -32,6 +32,7 @@ from backend.app.api.roadmap import router as roadmap_router
 from backend.app.api.practice import router as practice_router
 from backend.app.api.chat import router as chat_router
 from backend.app.api.reports import router as reports_router
+from backend.app.api.flashcards import router as flashcards_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -92,6 +93,7 @@ app.include_router(roadmap_router, prefix="/api")
 app.include_router(practice_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
 app.include_router(reports_router, prefix="/api")
+app.include_router(flashcards_router, prefix="/api")
 
 # Locate frontend dist if built
 DIST_DIRS = [

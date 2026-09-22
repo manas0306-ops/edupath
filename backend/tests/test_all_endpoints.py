@@ -193,4 +193,69 @@ async def test_chapter_analytics_endpoints():
         assert toggle_data["success"] is True
         assert toggle_data["chapter"]["status"] in ["completed", "left"]
 
+@pytest.mark.asyncio
+async def test_flashcards_and_quiz_endpoints():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Auth
+        auth_res = await client.post("/api/auth/demo")
+        token = auth_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Fetch Flashcards (All)
+        fc_res = await client.get("/api/flashcards?topic=all", headers=headers)
+        assert fc_res.status_code == 200
+        fc_data = fc_res.json()
+        assert "cards" in fc_data
+        assert len(fc_data["cards"]) >= 5
+        assert len(fc_data["available_topics"]) >= 5
+
+        # Check multilingual explanations
+        first_card = fc_data["cards"][0]
+        assert "explanations" in first_card
+        for lang in ["en", "hi", "pa", "es", "fr", "de", "ja"]:
+            assert lang in first_card["explanations"]
+            assert len(first_card["explanations"][lang]) > 10
+
+        # 2. Update Flashcard Status (Mastered)
+        card_id = first_card["id"]
+        status_res = await client.post(f"/api/flashcards/{card_id}/status", json={
+            "card_id": card_id,
+            "status": "mastered"
+        }, headers=headers)
+        assert status_res.status_code == 200
+        assert status_res.json()["status"] == "mastered"
+
+        # 3. Create Self-Assessment Quiz
+        quiz_res = await client.post("/api/practice/quiz/create", json={
+            "topic": "python",
+            "difficulty": "Intermediate",
+            "num_questions": 3
+        }, headers=headers)
+        assert quiz_res.status_code == 200
+        quiz_questions = quiz_res.json()
+        assert len(quiz_questions) >= 1
+        q0 = quiz_questions[0]
+        assert "question" in q0
+        assert len(q0["options"]) >= 2
+        assert "explanations" in q0
+        for lang in ["en", "hi", "pa", "es", "fr", "de", "ja"]:
+            assert lang in q0["explanations"]
+
+        # 4. Evaluate Quiz Submission
+        eval_res = await client.post("/api/practice/quiz/evaluate", json={
+            "topic": "python",
+            "answers": {q0["id"]: q0["correct_answer"]},
+            "time_taken_seconds": 45
+        }, headers=headers)
+        assert eval_res.status_code == 200
+        eval_data = eval_res.json()
+        assert eval_data["score_percentage"] == 100.0
+        assert eval_data["correct_count"] == 1
+        assert eval_data["xp_earned"] >= 25
+        assert len(eval_data["results"]) == 1
+        assert eval_data["results"][0]["is_correct"] is True
+        assert "explanations" in eval_data["results"][0]
+
+
 
