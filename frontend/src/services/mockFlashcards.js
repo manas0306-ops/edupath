@@ -10,7 +10,7 @@ export const AVAILABLE_TOPICS = [
 ];
 
 export const PROGRAMMING_FLASHCARDS = [
-    # --- PYTHON & DATA STRUCTURES ---
+    // --- PYTHON & DATA STRUCTURES ---
     {
         "id": "fc-py-1",
         "topic": "python",
@@ -71,8 +71,7 @@ export const PROGRAMMING_FLASHCARDS = [
         },
         "tags": ["Python", "Generators", "Memory Optimization"]
     },
-
-    # --- SQL & DATABASE ENGINEERING ---
+    // --- SQL & DATABASE ENGINEERING ---
     {
         "id": "fc-sql-1",
         "topic": "sql",
@@ -113,8 +112,7 @@ export const PROGRAMMING_FLASHCARDS = [
         },
         "tags": ["SQL", "Indexes", "B-Tree", "Optimization"]
     },
-
-    # --- PYTORCH & DEEP LEARNING ---
+    // --- PYTORCH & DEEP LEARNING ---
     {
         "id": "fc-pt-1",
         "topic": "pytorch",
@@ -155,8 +153,7 @@ export const PROGRAMMING_FLASHCARDS = [
         },
         "tags": ["PyTorch", "Inference", "VRAM", "Production"]
     },
-
-    # --- MACHINE LEARNING ALGORITHMS ---
+    // --- MACHINE LEARNING ALGORITHMS ---
     {
         "id": "fc-ml-1",
         "topic": "ml",
@@ -197,8 +194,7 @@ export const PROGRAMMING_FLASHCARDS = [
         },
         "tags": ["Machine Learning", "Regularization", "Lasso", "Ridge"]
     },
-
-    # --- FASTAPI & MICROSERVICES ---
+    // --- FASTAPI & MICROSERVICES ---
     {
         "id": "fc-fa-1",
         "topic": "fastapi",
@@ -219,8 +215,7 @@ export const PROGRAMMING_FLASHCARDS = [
         },
         "tags": ["FastAPI", "Dependency Injection", "Architecture", "Testing"]
     },
-
-    # --- DOCKER & CLOUD DEVOPS ---
+    // --- DOCKER & CLOUD DEVOPS ---
     {
         "id": "fc-dk-1",
         "topic": "docker",
@@ -372,3 +367,4 @@ export const SELF_ASSESSMENT_QUIZ_BANK = [
     }
 ]
 ;
+
